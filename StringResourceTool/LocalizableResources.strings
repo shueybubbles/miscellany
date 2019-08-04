@@ -1,0 +1,16 @@
+# String resource file
+#
+# When processed by the String Resource Tool, this file generates
+# both a .CS and a .RESX file with the same name as the file.
+# The .CS file contains a class which can be used to access these
+# string resources, including the ability to format in
+# parameters, which are identified with the .NET {x} format
+# (see String.Format help).
+#
+# Lines starting with a semicolon ";" are also treated as comments
+#
+
+[strings]
+StringWithoutArguments=This string has no arguments
+StringWithUntypedArgument(argument)=This string was declared with an untyped argument. Value: {0}
+StringWithTypeArguments(int intArgument, string stringArgument, DateTime dateTimeArgument)=This string was declared with an int {0}, a string {1}, and a DateTime {2}
