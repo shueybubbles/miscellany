@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project >
+  <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+  </PropertyGroup>  
+  <ItemDefinitionGroup>
+      <Sqlstringresource>
+      <namespace Condition="'$(rootnamespace)'!='' and '%(namespace)' == ''">$(rootnamespace)</namespace>
+      <namespace Condition="'$(rootnamespace)'=='' and '%(namespace)' == ''">%(filename)</namespace>
+      <outresxfilename Condition="'%(outresxfilename)'==''">%(filename)</outresxfilename>
+      <outcodefilename Condition="'%(outcodefilename)'==''">%(filename)</outcodefilename>
+      <outclassname Condition="'%(outclassname)'==''">%(filename)</outclassname>
+      <resourcename Condition="'%(resourcename)'==''">%(namespace)</resourcename>
+      <resourcename Condition="'%(resourcename)'!=''">%(resourcename)</resourcename>
+      <additionaloptions Condition="'%(additionaloptions)'==''"></additionaloptions>
+    </Sqlstringresource>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <Compile Include="@(Sqlstringresource -> '$(IntermediateOutputPath)%(outcodefilename).cs')" />
+  </ItemGroup>
+  <Target Name="sqlconvertstringresources"
+          BeforeTargets="AssignTargetPaths"
+          Inputs="$(MSBuildThisFileFullPath);@(Sqlstringresource->'%(fullpath)')"
+          Outputs="@(Sqlstringresource->'$(IntermediateOutputPath)%(outcodefilename).cs');@(sqlstringresource->'$(IntermediateOutputPath)%(outresxfilename).resx')"
+          Condition="'@(Sqlstringresource)'!=''">
+    <MakeDir Directories="$(IntermediateOutputPath)" />
+    <Exec Condition="!Exists('$(EnlistmentRoot)\tool\srgen.exe')" IgnoreExitCode="true" IgnoreStandardErrorWarningFormat="true" Command="dotnet tool install Microsoft.Data.Tools.StringResourceTool --version 1.0.0  --ignore-failed-sources --add-source https://api.nuget.org/v3/index.json --tool-path $(EnlistmentRoot)\tool"  />
+    <Exec Command="$(EnlistmentRoot)\tool\srgen.exe -or $(IntermediateOutputPath)%(sqlstringresource.outresxfilename).resx -oc $(IntermediateOutputPath)%(sqlstringresource.outcodefilename).cs -ns %(sqlstringresource.namespace) -cn %(sqlstringresource.outclassname) -l CS %(sqlstringresource.additionaloptions) %(sqlstringresource.fullpath)" />
+    <ItemGroup>
+      <EmbeddedResource Include="$(IntermediateOutputPath)%(sqlstringresource.outresxfilename).resx">
+        <LogicalName Condition="'%(Sqlstringresource.logicalname)'!=''">%(Sqlstringresource.logicalname)</LogicalName>
+        <ManifestResourceName>%(Sqlstringresource.resourcename).%(Sqlstringresource.outclassname)</ManifestResourceName>
+      </EmbeddedResource>
+    </ItemGroup>
+  </Target>
+ </Project>
